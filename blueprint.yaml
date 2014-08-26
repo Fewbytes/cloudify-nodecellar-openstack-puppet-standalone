@@ -103,10 +103,12 @@ node_templates:
         base_port: 8080
         puppet_config:
             modules:
-                - puppetlabs-nodejs
-                - puppetlabs-vcsrepo
+              - puppetlabs-nodejs
+              - puppetlabs-vcsrepo
+            download:
+              - /puppet.tar.gz
             manifest:
-                establish: puppet/manifests/nodecellar.pp
+                establish: manifests/nodecellar.pp  # inside puppet.tar.gz
       relationships:
         - target: nodejs_vm
           type: cloudify.relationships.contained_in
