@@ -105,10 +105,10 @@ node_templates:
             modules:
                 - puppetlabs-nodejs
                 - puppetlabs-vcsrepo
-            manifests:
+            manifest:
                 establish: puppet/manifests/nodecellar.pp
       relationships:
         - target: nodejs_vm
           type: cloudify.relationships.contained_in
         - target: mongod
-          type: cloudify.relationships.connected_to
+          type: cloudify.puppet.connected_to
