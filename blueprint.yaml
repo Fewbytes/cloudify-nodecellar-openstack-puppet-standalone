@@ -10,11 +10,6 @@ imports:
     # FIXME # - https://gist.githubusercontent.com/ilyash/61308577188f7cf3c406/raw/5e1b164a7edeb013ce746049578e441d1e74d242/CFY-871.yaml
     - puppet.yaml
 
-# plugins:
-#     nodecellar_config_plugin:
-#         derived_from: cloudify.plugins.agent_plugin
-#         properties:
-#             folder: nodecellar-config-plugin
 node_types:
     vm_host:
         derived_from: cloudify.openstack.server

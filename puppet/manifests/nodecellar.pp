@@ -77,6 +77,7 @@ class nodecellar(
     enable     => true,
     provider   => 'runit',
     hasrestart => false,
+    require    => User['nodecellar'],
     require    => Anchor['nodecellar-app-ready'],
     subscribe  => File['nodecellar-init-conf'],
   }
