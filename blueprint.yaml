@@ -105,10 +105,11 @@ node_templates:
             modules:
               - puppetlabs-nodejs
               - puppetlabs-vcsrepo
-            download:
-              - /puppet.tar.gz
+            download: puppet.tar.gz
+            execute:
+              create: 'package{"runit":}'  # Work around "Error: Could not find the daemon directory (tested [/etc/sv,/var/lib/service])" in runit service provider
             manifest:
-                establish: manifests/nodecellar.pp  # inside puppet.tar.gz
+              establish: manifests/nodecellar.pp  # inside puppet.tar.gz
       relationships:
         - target: nodejs_vm
           type: cloudify.relationships.contained_in

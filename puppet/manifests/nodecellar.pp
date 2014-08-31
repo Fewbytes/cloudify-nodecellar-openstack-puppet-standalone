@@ -10,21 +10,27 @@ class nodecellar(
   $nodecellar_port  = 80,
   $mongo_host       = '127.0.0.1',
   $mongo_port       = 27017,
+  $libcap_package   = 'libcap2-bin',
 ) {
 
   Exec {
     path => $path
   }
 
+  if($nodecellar_port < 1024) {
+    package { $libcap_package: }
+    ->
+    exec { 'Allow nodejs to bind to privileged ports':
+      command => 'setcap "cap_net_bind_service=+ep" `which nodejs`',
+      unless  => 'getcap `which nodejs` | grep -q "cap_net_bind_service+ep"',
+      require => Class['nodejs'],
+      before  => Anchor['nodejs-ready'],
+    }
+  }
+
   # NodeJS
   class { 'nodejs':
     manage_repo => true
-  }
-  ->
-  # TODO: Only do this if $nodecellar_port < 1024, make sure it's absent if $nodecellar_port >= 1024.
-  exec { 'Allow nodejs to bind to privileged ports':
-    command => 'setcap "cap_net_bind_service=+ep" `which nodejs`',
-    unless  => 'getcap `which nodejs` | grep -q "cap_net_bind_service+ep"',
   }
   ->
   anchor { 'nodejs-ready': }
@@ -60,6 +66,7 @@ class nodecellar(
   }
   ->
   file { "${runit_base_dir}/nodecellar/run":
+    alias   => 'nodecellar-init-conf',
     ensure  => present,
     content => "#!/bin/bash -e\nPATH=${path} NODECELLAR_PORT=${nodecellar_port} MONGO_HOST=${mongo_host} MONGO_PORT=${mongo_port} exec chpst -u nodecellar nodejs ${installation_dir}/server.js",
     mode    => '0700',
@@ -71,6 +78,7 @@ class nodecellar(
     provider   => 'runit',
     hasrestart => false,
     require    => Anchor['nodecellar-app-ready'],
+    subscribe  => File['nodecellar-init-conf'],
   }
 }
 
@@ -82,7 +90,7 @@ class nodecellar(
 
 class{'nodecellar':
   git_url         => $cloudify_properties_git_url,
-  git_branch      => $cloudify_properties_git_url,
+  git_branch      => $cloudify_properties_git_branch,
   nodecellar_port => $cloudify_properties_base_port,
   mongo_host      => $cloudify_related_host_ip,
   mongo_port      => $cloudify_related_properties_port,
