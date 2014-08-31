@@ -11,6 +11,7 @@ class nodecellar(
   $mongo_host       = '127.0.0.1',
   $mongo_port       = 27017,
   $libcap_package   = 'libcap2-bin',
+  $user             = 'nodecellar',
 ) {
 
   Exec {
@@ -55,7 +56,7 @@ class nodecellar(
   anchor { 'nodecellar-app-ready': }
 
   # Setup nodecellar service
-  user { 'nodecellar':
+  user { $user:
     ensure => present,
   }
 
@@ -68,7 +69,7 @@ class nodecellar(
   file { "${runit_base_dir}/nodecellar/run":
     alias   => 'nodecellar-init-conf',
     ensure  => present,
-    content => "#!/bin/bash -e\nPATH=${path} NODECELLAR_PORT=${nodecellar_port} MONGO_HOST=${mongo_host} MONGO_PORT=${mongo_port} exec chpst -u nodecellar nodejs ${installation_dir}/server.js",
+    content => "#!/bin/bash -e\nPATH=${path} NODECELLAR_PORT=${nodecellar_port} MONGO_HOST=${mongo_host} MONGO_PORT=${mongo_port} exec chpst -u ${user} nodejs ${installation_dir}/server.js",
     mode    => '0700',
   }
   ->
@@ -77,8 +78,10 @@ class nodecellar(
     enable     => true,
     provider   => 'runit',
     hasrestart => false,
-    require    => User['nodecellar'],
-    require    => Anchor['nodecellar-app-ready'],
+    require    => [
+      User[$user],
+      Anchor['nodecellar-app-ready'],
+    ],
     subscribe  => File['nodecellar-init-conf'],
   }
 }

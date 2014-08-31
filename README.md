@@ -4,7 +4,7 @@ Cloudify Puppet Standalone Nodecellar example
 Description
 -----------
 
-This is a blueprint for simple wordpress installation on two VMs:
+This is a blueprint for simple Nodecellar installation on two VMs:
 
 1. Nodecellar NodeJS application
 2. Mongo database
